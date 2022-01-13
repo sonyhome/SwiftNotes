@@ -3,13 +3,21 @@ My repo of notes on Swift
 
 # Enumerations
 
-```
+- Enum
+- Enum: CaseIterable
+- Enum { case x(Int)} (Associated value)
+- Enum: String (e.rawValue)
+- Indirect (recursive enumerations)
+
+```Swift
+// Declare
 enum E1 { case a, b, c}
 enum E2 {
   case a
   case b
   case c
 }
+
 // Use
 e = .b
 switch e {
@@ -17,9 +25,11 @@ switch e {
   case .b: print("b")
   default: print("c")
 }
+
 // Use iterable protocol
 enum E1 : CaseIterable { case a, b, c}
 for x in E1.allCases { print(x) }
+
 // Associated value
 enum Barcode {
   case upc(Int, Int, Int, Int) // UPC: system-manufactuer-product-check
@@ -40,12 +50,14 @@ case let .upc(numberSystem, manufacturer, product, check):
 case let .qrCode(productCode):
     print("QR code: \(productCode).")
 }
+
 // Use a raw type (string, char, number types, each enum must use a unique value)
 // Implicitly the value of a string will be the enum name, the value of a number will start
 // at 0 or whatever you set the first element of the enum. 
 enum E1 : String { case a = "a", b = "BB", c = "C"}
 print(E1.b.rawValue)
 let eb = E1("BB") // set eb to E1.b
+
 // Recursive enumerations: an enum that can use an enum as an element.
 enum ArithmeticExpression {
     case number(Int)
@@ -74,6 +86,6 @@ func evaluate(_ expression: ArithmeticExpression) -> Int {
     }
 }
 print(evaluate(product))
-
+```
 
 
