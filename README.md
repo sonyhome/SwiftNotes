@@ -91,6 +91,7 @@ print(evaluate(product))
 # Closures
 
 Closures are blocks of code similar to functions, nested functions, blocks or lambdas in other languages. **A closure can close over variables and constants** aka access them from the context it is defined in, and swift handles the memory management aspects.
+
 * Global (named) functions don't capture values
 * Nested (named) functions capture values from the enclosing function
 * (unamed) Expressions capture values from the surrounding context
@@ -103,7 +104,7 @@ Closure syntax optimizations:
 A method can have a closure as a parameter:
 ```func sorted(by: (_ s1: String, _ s2:String) -> Bool { if by(x,y) ...}```
 
-```swift
+```Swift
 let a ["x","a",b"]
 // Passing a function
 func backward(_ s1: String, _ s2: String) -> Bool { return s1 > s2 }
@@ -123,8 +124,77 @@ var ra6 = a.sorted( by: > )
 // Trailing closure
 var ra7 = a.sorted() {$0 > $1}
 var ra8 = a.sorted {$0 > $1}
+// For example it's used for map: for arrays to apply an action to all elements
+let x = ary.map { (value -> String in ... return digitNames[value]! }
+// With multiple closures, label all but the first one
+func loadPicture(from server: Server, completion: (Picture) -> Void, onFailure: () -> Void) {...}
+loadPicture(from: s) {pic in ...} onFailure: {...}
+```
+* **Capturing variables by reference** from context: Swift will do a lazy capture and manage memory as needed
+* Closures and Functions are reference types (var f = someFunc)
+
+```Swift
+func makeInc(for amount: Int) -> () -> Int {
+  // Acts as a hidden global
+  var total
+  func inc() -> Int {
+    total += amount // Capture a REFERENCE to total and amount
+    return total
+  }
+  // Return the closure function
+  return inc
+}
+let inc10 = makeInc(for: 10) // Creates an instance of total
+inc10() // returns 10
+inc10() // returns 20
+let inc3 = makeInc(for: 3) // Creates a new instance of total
+inc3() // returns 3
+inc10() // returns 30
+inc3() // returns 6
+```
+
+* **@escaping** Declares escaping closures, aka closures passed as arguments to a function, which get used after the function returns. For example the function assigns it to a global.
+* Escaping closures capturing variables from their parent class must explicitly use self (non escaping closures can ommit self and do implicit references)  
+* Structures and Enumerations don't allow escaping closures to self because they are value types and not reference types.
+* 
+```Swift
+var handlers: [() -> Void] = []
+
+class C {
+  var x = 0
+  func f(h: @escaping () -> Void) {
+    self.x += 1
+    handlers.append(h)
+  }
+}
+// Note you can capture all of self in the capture list to allow implicit references
+  func f(h: @escaping () -> Void) { [self] in
+    x += 1
+    handlers.append(h)
+  }
 
 ```
+* **Autoclosures** are closures wrapping an expression passed as an argument to a function. It lazily returns the value of the expression only when it's called.
+```Swift
+var a = ["a", "b", "c"]
+let rem = {a.remove(at: 0) } // declares closure, so not yet evaluated
+print(a.count) // 3
+print("Deleting \(rem())") // Calls closure & prints "Deleting 3"
+print(a.count) // 2 - lazy deletion
+
+// Works the same with a function call
+func do(entry func: () -> String) {
+  print("do \(func())")
+}
+do(entry: {a.remove(at: 0)} ) // Prints "do b"
+// And autclosure alternative
+func do(entry func: @autoclosure () -> String) {
+  print("do \(func())")
+}
+do(entry: a.remove(at: 0) ) // Prints "do b"
+
+```
+
 
 # Struct and Class
 
