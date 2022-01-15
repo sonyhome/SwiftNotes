@@ -32,7 +32,7 @@ repeat {...} while(x())
 if x {...} else if {...} else {...}
 guard x else {...} // tells swift x is true past this statement
 ```
-Switch statements don't fall through, allow matching ranges, checks can overlap, handle sets, can name the value (value binding)
+Switch statements don't fall through, allow matching ranges, checks can overlap, handle sets, can name the value (value binding), use where to add a condition
 ```Swift
 switch v {
   case v1: ... // You cannot have an empty case statement 
@@ -48,10 +48,46 @@ switch c {
   case (_,0): ... // _ means any value
   case (-2...2, -2...2): ...
   case let (x, y): ... //bind values to x, y to use them
+  case let (1, y): ...
+  case (let d, 0), (0, let d): ... // if same type you can combine
+  case let (c, y) where x == y: ... // can have a computed condition
   default: ...
 }
+```
 
-<<<<<
+Control transfer: **continue, break, fallthrough, return, throw, guard, #available**
+```Swift
+// Continue to skip to next iteration
+for x in t {
+  if done(x) { continue }
+}
+// Break exits a control flow
+for x in t {
+  if stop(x) { break }
+}
+switch v {
+  case v1: ... if x { break } ... // if x aborts
+  default: break // If we have an unknown case, aborts
+}
+// fallthrough makes a case execute the next case block
+switch v {
+  case v1: ... fallthrough // runs v1 and v2 code
+  case v2: ...
+}
+// use a label to explicitly bread/continue a for/while block
+labelx: for x in tx {
+  labely: for y in ty {
+     continue labely
+     break labelx
+  }
+}
+
+// use guards to clearly require conditions must be met. It must exit a block with continue, break, return, throw or fatalError(_:file:line:) which doesn't return
+var x : String? = getx()
+guard let x = x else { return }
+
+// You can check for API features for iOS, macOS, watchOS, tvOS with if or guard 
+if #available(iOS 13, macOS 11, *) {...} else {...}
 ```
 
 # Enumerations
