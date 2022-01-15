@@ -105,7 +105,7 @@ A method can have a closure as a parameter:
 ```func sorted(by: (_ s1: String, _ s2:String) -> Bool { if by(x,y) ...}```
 
 ```Swift
-let a ["x","a",b"]
+let a ["x","a","b"]
 // Passing a function
 func backward(_ s1: String, _ s2: String) -> Bool { return s1 > s2 }
 var ra1 = a.sorted(by: backward)
@@ -174,25 +174,43 @@ class C {
   }
 
 ```
-* **Autoclosures** are closures wrapping an expression passed as an argument to a function. It lazily returns the value of the expression only when it's called.
+* **Autoclosures** are closures automatically created to wrap an expression passed as an argument to a function. It lazily returns the value of the expression only when it's called.
 ```Swift
+// Let's look at lazy evaluation of expressions:
 var a = ["a", "b", "c"]
 let rem = {a.remove(at: 0) } // declares closure, so not yet evaluated
 print(a.count) // 3
 print("Deleting \(rem())") // Calls closure & prints "Deleting 3"
 print(a.count) // 2 - lazy deletion
 
-// Works the same with a function call
+// This works the same with a function call
 func do(entry func: () -> String) {
   print("do \(func())")
 }
 do(entry: {a.remove(at: 0)} ) // Prints "do b"
-// And autclosure alternative
-func do(entry func: @autoclosure () -> String) {
-  print("do \(func())")
-}
-do(entry: a.remove(at: 0) ) // Prints "do b"
 
+// An @autclosure syntax makes this behavior implicit
+func do(entry func: @autoclosure () -> String) {...}
+do(entry: a.remove(at: 0) ) // Prints "do b"
+// Avoid declaring @autoclosures except when it's clearly useful, like debug handlers.
+// You can have @autoclosure @escaping
+
+var customersInLine = ["Barry", "Daniella"]
+var customerProviders: [() -> String] = []
+func collectCustomerProviders(_ customerProvider: @autoclosure @escaping () -> String) {
+    customerProviders.append(customerProvider)
+}
+// Appends two customer removals in customerProviders, but remove is not evaluated
+collectCustomerProviders(customersInLine.remove(at: 0))
+collectCustomerProviders(customersInLine.remove(at: 0))
+
+print("Collected \(customerProviders.count) closures.") // Prints "Collected 2 closures."
+
+for customerProvider in customerProviders {
+    print("Now serving \(customerProvider())!")
+}
+// Prints "Now serving Barry!", "Barry" is removed from position 0
+// Prints "Now serving Daniella!", customersInLine is now empty
 ```
 
 
