@@ -1,6 +1,226 @@
 # SwiftNotes
 My repo of notes on Swift
 
+# General
+```swift
+// Comment
+/* Multi line
+   Comment */
+let a = "a"; print(a) // ; is not required except putting multiple statements on a line
+UInt8.min; UInt8.max // Int types have a min and a max
+Int // uses the platform native size
+UInt // Non signed
+Float // 32 bit
+Double // 64 bit
+17 0b0101 0o44 0x3F // Literals in decimal, binary, octal and hex notation
+125.0 1.25e2 // Floating point notation with exponent 125.0
+0xFp2 // Floating point hex 15*2^2 = 60.0
+001_234.560 // Literals can be padded with zeros and _ for readability
+let x = 3
+let y = Double(x) // Int->Float convertions must be explicit
+```
+**typealias**
+```Swift
+typealias myInt = Int
+var x : myInt = 3
+```
+**tuples** are often used to return multiple values in functions.
+```Swift
+let http404 = (404, "Not Found")
+let (_, msg) = http404
+print("\(http404.0) is \(msg)")
+let http200 = (code: 200, msg: "OK")
+print("\(http200.code) is \(http200.msg)")
+```
+Optional values 
+```Swift
+let x = "123"; let y = "fails"; let z : Int? // z is an optional of value nil
+var xInt = Int(x) // xInt is type Int?, value 123
+let yInt = Int(y) // yInt is type Int?, value nil
+if xInt != nil {print("\(xInt!)")} // ! forces unwrapping optional
+if let xx = xInt {print("\(xx)")} // let does optional binding, if runs if xx is non nil
+xInt = nil // works because it is an optional variable
+if let xx = xInt, let yy =yInt {...} // If statement only called if all conditions are met
+```
+Error handling
+* Use **throws** and **do try catch**.
+* Debug with Assertions **assert(_:_:file:line:)**
+* Debug with by enforcing preconditions **preconditionFailure(_:file:line:)** (check is disabled when compiling -Ounchecked)
+* Give up on error **fatalError(_:file:line:)**
+```
+func f() throws { ... }  // Function can throw an error
+do { try f() } catch e1 {...} catch {...} // Catch the errors
+
+assert(isTrue(x), "message")
+if isFalse(x) {
+  assertionFailure("message")
+}
+
+// x could be false but should never be at runtime
+precondition(isTrue(x), "message")
+
+guard let x = x else { fatal("x can't be nil") }
+```
+
+
+# Operators
+For tuples (a, b) coparisons checks: same number of values, then values from left to right until comparison is resolved.
+```Swift
+=
++ - * / %
+-x
++= -= *= /= %=
+== != > < >= <= // note: Bool can't use < > operators
+x ? y : z
+a ?? b // coalescing returns b is a is nil (a is optional)
+a! // unwraps optional a, runtime error if nil
+a...b // Range operator, used in "for" control flow
+a..<b // Range excludes b
+a... // One sided range, goes to the last element
+...b
+..<b
+! && || // Left associative logical operators for boolean true/false logic ! must not have a space
+```
+
+# Strings and Characters
+Swift strings are bridged to Foundation NSString class, and Foundation extends String to expose NSString methods (import Foundation to access NSString methods with String without a cast).
+Strings are value types, but the copy is lazy for performance.
+```Swift
+let s1 = ""
+let s1 = String()
+let s1 = "Message!"
+let s2 = "long \
+text"
+let s3 = """
+  Tabulation matching closing quotes are not shown
+    Extra tabs shown but ignoring starting tab
+  using "quotes" is ok
+  mutli lines doesn't print triple quote lines
+  a long line can \
+  be split in the code
+  """
+let specialChars = "\0 \\ \t \n \r \" \' \u{12345678}" // \u is a hex unicode
+let s4 = #"xxx\nyyy\nzzz"# // extended delimiter avoids escaping characters
+let s4 = #"xxx\nyyy\#nzzz"# // \# is the new escape character so \#n is a newline
+
+if s1.isEmpty {}
+s1 += " more" // append to s1
+s1.count // number of characters
+if s3.hasPrefix("Tabulation") {...}
+if s3.hasSuffix("the code") {...}
+```
+Characters
+```Swift
+let c1 : Character = "x"
+for c in "string" {...} // implicit
+let a = [Character] = ["C", "a", "t"]
+let s = String(a) // You can build a string from chars
+s.append("!")
+```
+String interpolation with **\()**
+```Swift
+let i : Int = 3
+let s = "number \(2 * i)"
+```
+**Grapheme Clusters**: some letters can be built as a combination of unicode characters. Note that that counts as ONE character even in strings (see s1.count), and prevents strings characters to be accessed by an array index. Two strings are equal (==) if they have the same meaning and representation (for example there's multiple unicode ways to represent the same e with an accent, similarly there are different "A" letters with different linguistic meaning).
+```Swift
+let eWithAccent : Character = "\u{65}\u{301}"
+// Grapheme impact how you index characters in strings
+s1[s1.startIndex] // M
+s1[s1.index(after: s1.startIndex)] // e
+s1[s1.index(before: s1.endIndex)] // !
+s1[s1.endIndex] // Runtime error
+for i in s1.indices {...}
+s1.insert(contentsOf:"Hey", at: s1.endIndex)
+s1.insert("!", at: s1.endIndex)
+s1.remove(at: s1.index(before: s1.endIndex))
+let range = s1.index(s1.endIndex, offsetBy: -6) ..< s1.endIndex
+s1.removeSubrange(range)
+```
+Substrings are a separate type, meant for short term manipulations, which can share the memory of the strings they spliced for performance optimization.
+```Swift
+let s = "foobar"
+let i = s.firstIndex(of: "b") ?? s.endIndex
+let ss = s[..<i] // Substring holds "foo"
+```
+Strings can be saved to file with different encodings (UTF-8, UTF-16, UTF-32...)
+```Swift
+let dog = "Dog‼🐶" // ‼ and 🐶 are special UTF characters encoded on 3 and 4 bytes
+for code in dog.utf8 {
+  print("\(code)", terminator: "") // Prints "68 111 103 226 128 188 240 159 144 182 "
+}
+for code in dog.utf16 {
+  print("\(code)", terminator: "") // Prints "68 111 103 8252 55357 56374 "
+}
+for code in dog.unicodeScalars { // use 21-bit Uint32 values
+  print("\(code)", terminator: "") // Prints "68 111 103 8252 128054 "
+}
+```
+
+# Generic collections
+Swift defines **arrays** (indexed), **sets** (named elements) and **dictionaries** (key values). These are bridged to Foundation NSArray, NSSet, NSDictionary.
+
+If you assign them with **let**, the collection is immutable, a **var** can be appended/removed.
+
+```Swift
+// Array declaration
+var a1: Array<Int>()  // Definition with explicit initializer syntax
+var a2: [Int] = [] // Shorthand definition and initialization
+var a3 = Array(repeating: 0.0, count: 3) // Initialize an array of 3 zeros.
+var a4 = a3 + a3 // + appends arrays
+var a4: [String] = ["a", "b"]
+a4.append("c")
+a4 += "d"
+a4[0] = "A"
+print(a4[0])
+a4[1..2] = ["B","C"]
+a4.insert("bc", at: 1) // inserts an element position 1.
+a4.remove(at: 1) // removes element at position 1.
+a4.removeLast() //removes lst element
+for c in a4 {print(c)} // for iteration
+for (i,c) in a4.enumerated {print(c)} // access both index starting at 0, and value
+```
+Sets hold distinct values of the same type, with no order. The type must follow the **Hashable** protocol (aka a unique Int ID to allow *a==b* comparisons, implemented by the **hash(into:)** method) like numbers, bools, strings, enums. Sets implement set operations and comparisons.
+```Swift
+var s1 : Set<Character>()  // Definition with explicit initializer syntax
+var s2 : Set<Character> = ["c", "d"] // Create a set with an array literal
+var s3 : Set = ["b", "c"] // You must declare Set but type can be infered by Swift
+s3.insert("a")
+if !s3.isEmpty { print(s3.count)} // number of elements in set
+if s3.contains("c") { let c = s3.remove("c")} // removes "c" from set and returns it in c
+for c in s3 { ... }
+for c in s3.sorted() { ... } // uses the < operator to sort the elements
+// Set operations can be done efficiently
+s3.union(s2)
+s3.intersection(s2)
+s3.substracting(s2)
+s3.symmetricDifference(s2) // What is not in the intersection of s3 and s2
+// Compare sets
+if s2 == s3 // contain the same elements
+if s2.isSubset(of: s3)
+if s2.isStrictSubset(of: s3) // s2 != s3 and s2 is a subset
+if s2.isSuperset(of: s3)
+if s2.isStrictSuperset(of: s3) // s2 != s3 and s2 is a subset
+if s2.isDisjoint(with: s3)
+```
+Dictionaries store key-value associations, both must have a unique type. Keys are unique,value are not. There is no order. Keys must be **Hashable**.
+```Swift
+var d1: Dictionary<Int, String>()
+var d2: [String: Int] = [:] // Initializer syntax shorthand
+d2["three"] = 3 // Insert an element
+var d3 = ["one": 1, "two": 2] // Swift can infer the type of a dictionary
+d3.count
+d3.isEmpty
+d3.updateValue(2, forKey:"two")
+d3["one"] = nil // delete an entry
+let one = d3.removeValue(forKey: "one")
+for (k, v) in d3 {...} 
+for k in d3.keys {...} 
+for k in d3.keys.sorted() {...} // If you need an iteration order using operator <
+for v in d3.values {...} 
+let keys = [String](d3.keys)
+```
+
 # Control flow
 
 * For loops
