@@ -1,5 +1,9 @@
 # SwiftNotes
-My repo of notes on Swift
+My notes on Swift 5.5, IDE is XCode 13 extract from [Swift Language Guide](https://docs.swift.org/swift-book/LanguageGuide/TheBasics.html) just enough for a C programmer to understand the syntax and concepts.
+
+Swift
+* reduces programming errors: variables are initialized before use, indices checked for out of boundsm ints for overflow, optionals handle nil explicitly, memory is managed, error handling help recover.
+* performs: syntax designed to make natural code compile best. Type inferance help clear concise code.
 
 # General
 Using numbers
@@ -49,8 +53,10 @@ Error handling
 * Debug with by enforcing preconditions **preconditionFailure(_:file:line:)** (check is disabled when compiling -Ounchecked)
 * Give up on error **fatalError(_:file:line:)**
 ```Swift
-func f() throws { ... }  // Function can throw an error
-do { try f() } catch e1 {...} catch {...} // Catch the errors
+enum fu: Error { case e1 }
+func f() throws { ... throw fu.e1 }  // Function can throw an error
+do { try f() } catch fu.e1 {...} catch {...} // Catch the errors
+let er = try? f() // Catch error in an optional
 
 assert(isTrue(x), "message")
 if isFalse(x) {
@@ -81,6 +87,9 @@ a... // One sided range, goes to the last element
 ...b
 ..<b
 ! && || // Left associative logical operators for boolean true/false logic ! must not have a space
+
+=== Identity operators to make sure 2 references point to the same element, for reference types like Class
+!== ( == and != compare the content)
 ```
 
 # Strings and Characters
@@ -158,7 +167,7 @@ for code in dog.unicodeScalars { // use 21-bit Uint32 values
 }
 ```
 
-# Generic collections
+# Generic Collection Types
 Swift defines **arrays** (indexed), **sets** (named elements) and **dictionaries** (key values). These are bridged to Foundation NSArray, NSSet, NSDictionary.
 
 If you assign them with **let**, the collection is immutable, a **var** can be appended/removed.
@@ -222,7 +231,7 @@ for v in d3.values {...}
 let keys = [String](d3.keys)
 ```
 
-# Control flow
+# Control Flow
 
 * For loops
 ```Swift
@@ -310,96 +319,6 @@ guard let x = x else { return }
 // You can check for API features for iOS, macOS, watchOS, tvOS with if or guard 
 if #available(iOS 13, macOS 11, *) {...} else {...}
 ```
-
-# Enumerations
-
-Enums can be more than a list of elements in Swift.
-
-- **Enum** declarations (it is a copy by value type, not by reference)
-- Enum: CaseIterable (for x in E.**allCases**{})
-- Enum Associated value  Enum E {case **x(Int)**}
-- Enum: BaseType (e.**rawValue**)
-- Recursive enumerations **indirect case** 
-
-```Swift
-// Declare
-enum E1 { case a, b, c}
-enum E2 {
-  case a
-  case b
-  case c
-}
-
-// Use
-e = .b
-switch e {
-  case .a: print("a")
-  case .b: print("b")
-  default: print("c")
-}
-
-// Use iterable protocol
-enum E1 : CaseIterable { case a, b, c}
-for x in E1.allCases { print(x) }
-
-// Associated value
-enum Barcode {
-  case upc(Int, Int, Int, Int) // UPC: system-manufactuer-product-check
-  case qrCode(String) // string max 2953 ISO 8859-1 characters
-}
-var productBarcode = Barcode.upc(8, 85909, 51226, 3)
-productBarcode = .qrCode("ABCDEFGHIJKLMNOP")
-switch productBarcode {
-case .upc(let numberSystem, let manufacturer, let product, let check):
-    print("UPC: \(numberSystem), \(manufacturer), \(product), \(check).")
-case .qrCode(let productCode):
-    print("QR code: \(productCode).")
-}
-//or
-switch productBarcode {
-case let .upc(numberSystem, manufacturer, product, check):
-    print("UPC : \(numberSystem), \(manufacturer), \(product), \(check).")
-case let .qrCode(productCode):
-    print("QR code: \(productCode).")
-}
-
-// Use a raw type (string, char, number types, each enum must use a unique value)
-// Implicitly the value of a string will be the enum name, the value of a number will start
-// at 0 or whatever you set the first element of the enum. 
-enum E1 : String { case a = "a", b = "BB", c = "C"}
-print(E1.b.rawValue)
-let eb = E1("BB") // set eb to E1.b
-
-// Recursive enumerations: an enum that can use an enum as an element.
-enum ArithmeticExpression {
-    case number(Int)
-    indirect case addition(ArithmeticExpression, ArithmeticExpression)
-    indirect case multiplication(ArithmeticExpression, ArithmeticExpression)
-}
-indirect enum ArithmeticExpression {
-    case number(Int)
-    case addition(ArithmeticExpression, ArithmeticExpression)
-    case multiplication(ArithmeticExpression, ArithmeticExpression)
-}
-// Combine expressions
-let five = ArithmeticExpression.number(5)
-let four = ArithmeticExpression.number(4)
-let sum = ArithmeticExpression.addition(five, four)
-let product = ArithmeticExpression.multiplication(sum, ArithmeticExpression.number(2))
-// An evaluate the enum expression
-func evaluate(_ expression: ArithmeticExpression) -> Int {
-    switch expression {
-    case let .number(value):
-        return value
-    case let .addition(left, right):
-        return evaluate(left) + evaluate(right)
-    case let .multiplication(left, right):
-        return evaluate(left) * evaluate(right)
-    }
-}
-print(evaluate(product))
-```
-
 # Functions
 
 A function is a closure with a name. Its type is defined by its parameter and return types.
@@ -605,18 +524,140 @@ for customerProvider in customerProviders {
 ```
 
 
+# Enumerations
+
+Enums can be more than a list of elements in Swift.
+
+- **Enum** declarations (it is a copy by value type, not by reference)
+- Enum: CaseIterable (for x in E.**allCases**{})
+- Enum Associated value  Enum E {case **x(Int)**}
+- Enum: BaseType (e.**rawValue**)
+- Recursive enumerations **indirect case** 
+
+```Swift
+// Declare
+enum E1 { case a, b, c}
+enum E2 {
+  case a
+  case b
+  case c
+}
+
+// Use
+e = .b
+switch e {
+  case .a: print("a")
+  case .b: print("b")
+  default: print("c")
+}
+
+// Use iterable protocol
+enum E1 : CaseIterable { case a, b, c}
+for x in E1.allCases { print(x) }
+
+// Associated value
+enum Barcode {
+  case upc(Int, Int, Int, Int) // UPC: system-manufactuer-product-check
+  case qrCode(String) // string max 2953 ISO 8859-1 characters
+}
+var productBarcode = Barcode.upc(8, 85909, 51226, 3)
+productBarcode = .qrCode("ABCDEFGHIJKLMNOP")
+switch productBarcode {
+case .upc(let numberSystem, let manufacturer, let product, let check):
+    print("UPC: \(numberSystem), \(manufacturer), \(product), \(check).")
+case .qrCode(let productCode):
+    print("QR code: \(productCode).")
+}
+//or
+switch productBarcode {
+case let .upc(numberSystem, manufacturer, product, check):
+    print("UPC : \(numberSystem), \(manufacturer), \(product), \(check).")
+case let .qrCode(productCode):
+    print("QR code: \(productCode).")
+}
+
+// Use a raw type (string, char, number types, each enum must use a unique value)
+// Implicitly the value of a string will be the enum name, the value of a number will start
+// at 0 or whatever you set the first element of the enum. 
+enum E1 : String { case a = "a", b = "BB", c = "C"}
+print(E1.b.rawValue)
+let eb = E1("BB") // set eb to E1.b
+
+// Recursive enumerations: an enum that can use an enum as an element.
+enum ArithmeticExpression {
+    case number(Int)
+    indirect case addition(ArithmeticExpression, ArithmeticExpression)
+    indirect case multiplication(ArithmeticExpression, ArithmeticExpression)
+}
+indirect enum ArithmeticExpression {
+    case number(Int)
+    case addition(ArithmeticExpression, ArithmeticExpression)
+    case multiplication(ArithmeticExpression, ArithmeticExpression)
+}
+// Combine expressions
+let five = ArithmeticExpression.number(5)
+let four = ArithmeticExpression.number(4)
+let sum = ArithmeticExpression.addition(five, four)
+let product = ArithmeticExpression.multiplication(sum, ArithmeticExpression.number(2))
+// An evaluate the enum expression
+func evaluate(_ expression: ArithmeticExpression) -> Int {
+    switch expression {
+    case let .number(value):
+        return value
+    case let .addition(left, right):
+        return evaluate(left) + evaluate(right)
+    case let .multiplication(left, right):
+        return evaluate(left) * evaluate(right)
+    }
+}
+print(evaluate(product))
+```
+
+
 # Struct and Class
 
 **Value types**: Basic types, enums, structs are copied on assignment. Collections like arrays, dictionaries ad strings do a lazy copy when modified.
 
 Struct have built in initializers you can use.
 
-**Reference type**: Classes are passed by pointer. To tell if two instances of a class are the same use === !==, vs == which check they have the same value
+**Reference type**: Classes are passed by pointer. To tell if two instances of a class are the same use **identity operators === !==**, vs == which check they have the same value
 
 Classes don't have an implicit initializer. 
 
 Swift provides pointers and buffer types only if you need to do manual memory management.
 
+# Properties of Class, Struct and Enum
+A property can be a var or a let constant, and can have **lazy** evaluation, and can be a **get/set computed property** with no stored value.
+```Swift
+struct SType {
+  var v1 = 1 // set default values
+  let c1 = 1
+}
+var s1 : SType // Initialized to default values
+var s2 = SType(v1: 2, c1: 2) // Override the default values
+s1.v1 = 3; s2.v1 = 3
+ 
+clas CType {
+   lazy var v1 = SType() // Lazy evaluation done on first use
+  let c1 = "1"  
+}
+print(c1) // v1 not evaluated
+print(v1) // SType() is created to initialize v1
+// note: in multi-thread v1 might get initialized more than once!
 
+// Computed properties don't actually store a value, but expose get/set
+struct SType2 {
+  var a = Int(0)
+  var b = Int(0)
+  var min: Int { // Read/Write computed property with get/set
+    get { return a < b ? a : b }
+    get { a < b ? a : b  } // For single expression "return" can be ommited
+    set(v) {if a < b {a = v} else {b = v}} // Setter example with input value declared
+    set {if a < b {a = newValue} else {b = newValue}} // Implicit input value is called newValue
+  }
+  var avg: Int { return (a+b)/2 } // Read only computed property
+}
+```
+**Property observers** observe and respond to changes in a property’s value.
 
 
