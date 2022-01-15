@@ -2,6 +2,7 @@
 My repo of notes on Swift
 
 # General
+Using numbers
 ```swift
 // Comment
 /* Multi line
@@ -32,7 +33,7 @@ print("\(http404.0) is \(msg)")
 let http200 = (code: 200, msg: "OK")
 print("\(http200.code) is \(http200.msg)")
 ```
-Optional values 
+Optional values (**?, !**)
 ```Swift
 let x = "123"; let y = "fails"; let z : Int? // z is an optional of value nil
 var xInt = Int(x) // xInt is type Int?, value 123
@@ -47,7 +48,7 @@ Error handling
 * Debug with Assertions **assert(_:_:file:line:)**
 * Debug with by enforcing preconditions **preconditionFailure(_:file:line:)** (check is disabled when compiling -Ounchecked)
 * Give up on error **fatalError(_:file:line:)**
-```
+```Swift
 func f() throws { ... }  // Function can throw an error
 do { try f() } catch e1 {...} catch {...} // Catch the errors
 
