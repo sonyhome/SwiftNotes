@@ -1,6 +1,59 @@
 # SwiftNotes
 My repo of notes on Swift
 
+# Control flow
+
+* For loops
+```Swift
+// Loop on arrays
+let a = [1,2,3]
+for v in a {...}
+// Loop on dictionaries (note: it's unordered)
+let legs = ["spider": 8, "ant": 6, "cat": 4]
+for (k, v) in legs {...}
+// Numeric ranges with the closed range operator 
+for i in 1...5 {...} // 12345
+// Ignoring the value with _
+for _ in 1...5 {...}
+// Half open range operator
+for i in 1..<5 {...} // 1234
+// strides
+for i in stride(from: 0, to: 60, by: 5) {...} // 0 5 10 ... 55
+for i in stride(from: 0, through: 60, by: 5) {...} // 0 5 10 ... 60
+```
+* While loops
+Performs the loop until the condition is false
+```Swift
+while x() {...}
+repeat {...} while(x())
+```
+* Conditionals
+```Swift
+if x {...} else if {...} else {...}
+guard x else {...} // tells swift x is true past this statement
+```
+Switch statements don't fall through, allow matching ranges, checks can overlap, handle sets, can name the value (value binding)
+```Swift
+switch v {
+  case v1: ... // You cannot have an empty case statement 
+  case v2: ... fallthrough  // Unlike C, case statements don't flow into each other or need a break, but you can force it
+  case v2, v3: ... // You can put 2 values to one action
+  case v4..<v5: ... // or you can use interval matching
+  default: ...
+}
+
+let x = (1,1) // Switch can test tuples
+switch c {
+  case (0,0): ... // The first matching case exits the switch
+  case (_,0): ... // _ means any value
+  case (-2...2, -2...2): ...
+  case let (x, y): ... //bind values to x, y to use them
+  default: ...
+}
+
+<<<<<
+```
+
 # Enumerations
 
 Enums can be more than a list of elements in Swift.
@@ -167,6 +220,7 @@ func f3(fn: () -> Void) {...}
 f3(fn: r)
 func f4() -> () -> Void {return f1}
 ```
+* **Nested functions** are allowed, are hidden outside of the scope of the enclosing function, but can be exposed by being returned to escape the scope.
 
 # Closures
 
