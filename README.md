@@ -3,11 +3,13 @@ My repo of notes on Swift
 
 # Enumerations
 
-- Enum
-- Enum: CaseIterable
-- Enum { case x(Int)} (Associated value)
-- Enum: String (e.rawValue)
-- Indirect (recursive enumerations)
+Enums can be more than a list of elements in Swift.
+
+- **Enum** declarations (it is a copy by value type, not by reference)
+- Enum: CaseIterable (for x in E.**allCases**{})
+- Enum Associated value  Enum E {case **x(Int)**}
+- Enum: BaseType (e.**rawValue**)
+- Recursive enumerations **indirect case** 
 
 ```Swift
 // Declare
@@ -88,6 +90,84 @@ func evaluate(_ expression: ArithmeticExpression) -> Int {
 print(evaluate(product))
 ```
 
+# Functions
+
+A function is a closure with a name. Its type is defined by its parameter and return types.
+* _ No parameter name
+* name: and argument labels for parameters
+* = default value
+* A function can be a parameter of a function or returned by a function
+* Optional return Type?
+* 
+```Swift
+// Declare a function f with one integer input parameter v, returning a string
+func f(v: Int) -> String { return "x"}
+// Call the function
+print(f(v: 3))
+// A function with no parameter still needs to be called with parentheses
+// Note it is the same as func f2() -> Void {...}
+func f2() {...}
+f2()
+// Or with multiple parameters:
+func f3(vI: Int, vS: String) {...}
+f3(vI: 1, vS: "x")
+// Ignore return value
+let _ = f(1)
+
+// Return multiple values in a tuple
+func f4(a: [Int]) -> (min: Int, max: Int) {...
+  return (vMin, vMax) // don't need to name explicitly the tuple elements
+}
+let r = f4([1,2,3])
+print ("Values from \(r.min) to \(r.max)")
+
+// Handling optional ? return value
+func f5() -> String? {... return }
+let x = f5() // x is nil because
+if let x = f5() {print(x)} // optional binding prevents using a nil value
+guard let x = f5() else { print("no x!") } // optional binding guard handles nil value, rest of the code can assume it is set
+
+// Implicit return, for single expression functions returning by value, we can ommit "return"
+func msg() -> String {"The message"}
+// Function parameters have an argument name (for the call), which don't need to be unique as parameters are passed in order, and a parameter name which are unique (used within the function). Use _ to not specify an argument name.
+func f6(n: Int) -> Int {return n}
+let x = f6(n: 33)
+func f7(l n: Int) -> Int {return n}
+let x = f7(l: 33)
+ func f8(_ n: Int) -> Int {return n}
+let x = f8(33)
+// You can set a default value with =
+ func f9(_ n: Int = 33) -> Int {return n}
+let x = f9()
+```
+* **... Variadic** parameters accepts 0 or more values of the specified type, seen as an array in the function
+* Passing multiple variadic parameters requires all but first parameters to have explicit labels
+```Swift
+func f(_ nums:Double...) -> Double {
+  var t: Double = 0
+  for n in nums { t += n }
+  return t / Double(nums.count)
+}
+```
+* Function parameters are read only unless they have the **inout** keyword (the parameter must be a var, and you mark it with an &).
+```Swift
+func f(_ a: inout Int) { a++ }
+var x = 1
+f(&x)
+```
+* A variable can have a function type and be assigned a function
+* Similarly it can be another function's parameter, and can be returned by a function
+```Swift
+func f1() {...}
+var r: () -> Void = f1
+r()
+func f2() {...}
+r = f2
+func f3(fn: () -> Void) {...}
+f3(fn: r)
+func f4() -> () -> Void {return f1}
+```
+
 # Closures
 
 Closures are blocks of code similar to functions, nested functions, blocks or lambdas in other languages. **A closure can close over variables and constants** aka access them from the context it is defined in, and swift handles the memory management aspects.
@@ -131,7 +211,7 @@ func loadPicture(from server: Server, completion: (Picture) -> Void, onFailure: 
 loadPicture(from: s) {pic in ...} onFailure: {...}
 ```
 * **Capturing variables by reference** from context: Swift will do a lazy capture and manage memory as needed
-* Closures and Functions are reference types (var f = someFunc)
+* **Closures and Functions are reference types** (var f = someFunc)
 
 ```Swift
 func makeInc(for amount: Int) -> () -> Int {
@@ -154,7 +234,7 @@ inc3() // returns 6
 ```
 
 * **@escaping** Declares escaping closures, aka closures passed as arguments to a function, which get used after the function returns. For example the function assigns it to a global.
-* Escaping closures capturing variables from their parent class must explicitly use self (non escaping closures can ommit self and do implicit references)  
+* Escaping closures capturing variables from their parent class must explicitly use **self** (non escaping closures can ommit self and do implicit references)  
 * Structures and Enumerations don't allow escaping closures to self because they are value types and not reference types.
 * 
 ```Swift
