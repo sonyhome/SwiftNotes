@@ -658,6 +658,32 @@ struct SType2 {
   var avg: Int { return (a+b)/2 } // Read only computed property
 }
 ```
-**Property observers** observe and respond to changes in a property’s value.
-
-
+**Property observers willSet/didSet** are called before and after a value is set (even if it's set to the same value) with constant parameters being the new and old value. You can overwrite the new value in didSet. They can be added to to a property defined or inherited or computed property inherited (override it in the sub-class). For your computed property just use the set() to observe and respond.
+Note: if the property is passed as an **inout** parameter to a function, the observers are called because the property will always be copied in and out of the function.
+```Swift
+class c {
+  var t: Int  = 0 {
+    willSet(newT) {...} // If newT is not specified parameter will be newValue
+    didSet { ... oldValue } // and here it's oldValue
+  }
+}
+```
+**@propertyWrapper** separate how a property is stored from code that defines it (to do thread safety checks for example).
+```Swift
+// Define a wrapper
+@propertyWrapper
+struct TwelveOrLess {
+    private var number = 0 // private enforces use of get/set, notice value is initialized
+    var wrappedValue: Int { // This is a computed property with no storage used
+        get { return number }
+        set { number = min(newValue, 12) }
+    }
+}
+// Use the wrapper
+struct s1 {
+  @TwelveOrLess var v1: Int
+  @TwelveOrLess var v2: Int
+}
+var v1 = s1(v1: 32, v2:6) // Wrapper makes v1 set to 12.
+```
+For propertyWrapper to allow users to set initial values, like for v1, it must define an init() method(s).
