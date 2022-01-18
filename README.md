@@ -14,8 +14,8 @@ Swift
   https://forums.swift.org/
 
 # Table of Contents
-* [General](#General)
-* [Operators](#Operators)
+* [General](#General), numbers, typealias, tuples, optional types ?/!, throw/catch/assert
+* [Operators](#Operators), arithmetic, comparison, ===
 * [Strings and Characters](#strings-and-characters) and Grapheme
 * [Generic Collection Types](#generic-collection-types), arrays, sets, dictionaries
 * [Control Flow](#control-flow), loops and conditional statements
@@ -32,25 +32,27 @@ Using numbers
 // Comment
 /* Multi line
    Comment */
-let a = "a"; print(a) // ; is not required except putting multiple statements on a line
-UInt8.min; UInt8.max // Int types have a min and a max
-Int // uses the platform native size
-UInt // Non signed
+let a = "a"; print(a) // A ";" is not required between statements, except when they are on the same line
+
+UInt8.min; UInt8.max // Int types have a built-in min and a max (all types are structs with properties)
+Int // uses the platform native size, 32 or 64 bit
+UInt // Unsigned
 Float // 32 bit
 Double // 64 bit
+
 17 0b0101 0o44 0x3F // Literals in decimal, binary, octal and hex notation
 125.0 1.25e2 // Floating point notation with exponent 125.0
 0xFp2 // Floating point hex 15*2^2 = 60.0
 001_234.560 // Literals can be padded with zeros and _ for readability
-let x = 3
-let y = Double(x) // Int->Float convertions must be explicit
+
+let x = 3; let y = Double(x) // Int->Float convertions must be explicit with a constructor call
 ```
-**typealias**
+**typealias** are supported
 ```Swift
 typealias myInt = Int
 var x : myInt = 3
 ```
-**tuples** are often used to return multiple values in functions.
+**tuples** are convenient to return multiple values from functions.
 ```Swift
 let http404 = (404, "Not Found")
 let (_, msg) = http404
@@ -58,15 +60,16 @@ print("\(http404.0) is \(msg)")
 let http200 = (code: 200, msg: "OK")
 print("\(http200.code) is \(http200.msg)")
 ```
-Optional values (**?, !**)
+Optional values (**?, !**) add support of **nil** values
 ```Swift
-let x = "123"; let y = "fails"; let z : Int? // z is an optional of value nil
-var xInt = Int(x) // xInt is type Int?, value 123
-let yInt = Int(y) // yInt is type Int?, value nil
-if xInt != nil {print("\(xInt!)")} // ! forces unwrapping optional
-if let xx = xInt {print("\(xx)")} // let does optional binding, if runs if xx is non nil
-xInt = nil // works because it is an optional variable
-if let xx = xInt, let yy =yInt {...} // If statement only called if all conditions are met
+var z : Int? // z is an optional of value nil (no value assigned)
+var x = Int("123") // xInt is type Int?, value 123
+let y = Int("fails") // yInt is type Int?, value nil
+if x != nil {print("\(x!)")} // ! forces unwrapping optional
+if let xx = x {print("\(xx)")} // let does optional binding, "if" runs only if xx is non nil
+x = nil // works because it is an optional variable
+if let xx = x, let yy =y {...} // If statement only called if all conditions are met
+var v : Int = nil // Not allowed since Int is not an optional value like Int?
 ```
 Error handling
 * Use **throws** and **do try catch**.
