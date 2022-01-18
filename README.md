@@ -668,7 +668,7 @@ class c {
   }
 }
 ```
-**@propertyWrapper** separate how a property is stored from code that defines it (to do thread safety checks for example).
+**@propertyWrapper** separate how a property is stored from code that defines it (to do thread safety checks for example). **wrappedValue** is the keyword.
 ```Swift
 // Define a wrapper
 @propertyWrapper
@@ -677,6 +677,7 @@ struct TwelveOrLess {
     var wrappedValue: Int { // This is a computed property with no storage used
         get { return number }
         set { number = min(newValue, 12) }
+        // didset {} etc.
     }
 }
 // Use the wrapper
@@ -686,4 +687,46 @@ struct s1 {
 }
 var v1 = s1(v1: 32, v2:6) // Wrapper makes v1 set to 12.
 ```
-For propertyWrapper to allow users to set initial values, like for v1, it must define an init() method(s).
+To let users set initial values for propertyWrapper (like for v1), init() method(s) must be defined with the parameters they need.
+
+* Adding a **projectedValue** to a property wrapper
+A property wrapper can expose extra functionality on its projected value (name preceded by $). It can return a value of any type, or return a complex type or even self
+```Swift
+@propertyWrapper
+struct PW {
+  private var v : Int // varriable storing actual value
+  private(set) var projectedValue: Bool. // declare the projected value (set is private, get is public)
+  var wrappedValue: Int { // Wrapped value computed, accedded via get/set
+    get { return v }
+    set { if ... { v = newValue; projectedValue= true } else {projectedValue = false } }
+  }
+  init() {
+    self.v = 0; self.pv = false
+  }
+}
+struct S {
+  @PW var n : Int // apply property wrapper on n
+  // note we can access $n in the struct too
+}
+var s : S = S()
+s.n = 4
+print(s.$n) // print projectedValue value true
+```
+
+This can be used for example to automatically store defaults to disk.
+```Swift
+@propertyWrapper struct UserDefaultsBacked<Value> {
+    let key: String
+    var wrappedValue: Value? {
+        get { UserDefaults.standard.value(forKey: key) as? Value }
+        set { UserDefaults.standard.setValue(newValue, forKey: key) }
+    }
+}
+struct SettingsViewModel {
+    @UserDefaultsBacked<Bool>(key: "mark-as-read")
+    var autoMarkMessagesAsRead
+
+    @UserDefaultsBacked<Int>(key: "search-page-size")
+    var numberOfSearchResultsPerPage
+}
+```
