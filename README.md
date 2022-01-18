@@ -70,6 +70,7 @@ if let xx = x {print("\(xx)")} // let does optional binding, "if" runs only if x
 x = nil // works because it is an optional variable
 if let xx = x, let yy =y {...} // If statement only called if all conditions are met
 var v : Int = nil // Not allowed since Int is not an optional value like Int?
+var v : Int = x ?? 99 // "??" operator replaces nil with a default value. It may require parenthesis when used in complex expressions
 ```
 Error handling
 * Use **throws** and **do try catch**.
@@ -95,7 +96,6 @@ guard let x = x else { fatal("x can't be nil") }
 
 
 # Operators
-For tuples (a, b) coparisons checks: same number of values, then values from left to right until comparison is resolved.
 ```Swift
 =
 + - * / %
@@ -115,6 +115,7 @@ a... // One sided range, goes to the last element
 === Identity operators to make sure 2 references point to the same element, for reference types like Class
 !== ( == and != compare the content)
 ```
+* For tuples (a, b) comparisons checks rules are: same number of values, then values from left to right until comparison is resolved.
 
 # Strings and Characters
 Swift strings are bridged to Foundation NSString class, and Foundation extends String to expose NSString methods (import Foundation to access NSString methods with String without a cast).
