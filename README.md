@@ -8,7 +8,7 @@ Swift
 * performs: syntax designed to make natural code compile best. Type inferance help clear concise code.
 * Has some weird modifiers like @notation and variables that can be keywords for some constructs, can chain calls, has implicit memory management by value/reference based on type (ref-counting, not GC).
 
-[^1]: The swift programming language swift 5.5. 
+[^1]: The swift programming language swift 5.5  
   https://docs.swift.org/swift-book (browse online)  
   https://docs.swift.org/swift-book/TheSwiftProgrammingLanguageSwift55.epub  
   https://forums.swift.org/
