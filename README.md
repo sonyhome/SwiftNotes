@@ -8,6 +8,19 @@ Swift
 * performs: syntax designed to make natural code compile best. Type inferance help clear concise code.
 * Has some weird modifiers like @notation and variables that can be keywords for some constructs, can chain calls, has implicit memory management by value/reference based on type (ref-counting, not GC).
 
+# Table of Contents
+* [#General](General)
+* [#Operators](Operators)
+* [#strings-and-characters](Strings and Characters) and Grapheme
+* [#generic-collection-types](Generic Collection Types), arrays, sets, dictionaries
+* [#control-flow](Control Flow), loops and conditional statements
+* [#functions](Functions), variadic, inout
+* [#Closures](Closures), parameter shorthand, trailing syntax, capturing variables, escaping, autoclosure
+* [#Enumerations](Enumerations), CaseIterable, Associated values, rawValue, recursive
+* [#struct-and-class](Struct and Class)
+* [#properties-of-class-struct-and-enum](Properties of Class, Struct and Enum), Property observers willSet/didSet, @propertyWrapper/wrappedValue, projectedValue
+
+
 # General
 Using numbers
 ```swift
