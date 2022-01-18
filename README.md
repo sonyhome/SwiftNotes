@@ -1,12 +1,17 @@
 ![Logo](SwiftOverview.png)
 
 # SwiftNotes
-My notes on Swift 5.5, IDE is XCode 13 extract from [Swift Language Guide](https://docs.swift.org/swift-book/LanguageGuide/TheBasics.html) just enough for a C programmer to understand the syntax and concepts.
+My notes on Swift 5.5, IDE is XCode 13 extract from [Swift Book - Language Guide](https://docs.swift.org/swift-book/LanguageGuide/TheBasics.html)[^book] just enough for a C programmer to understand the syntax and concepts.
 
 Swift
 * reduces programming errors: variables are initialized before use, indices checked for out of boundsm ints for overflow, optionals handle nil explicitly, memory is managed, error handling help recover.
 * performs: syntax designed to make natural code compile best. Type inferance help clear concise code.
 * Has some weird modifiers like @notation and variables that can be keywords for some constructs, can chain calls, has implicit memory management by value/reference based on type (ref-counting, not GC).
+
+:[^book] The swift programming language swift 5.5
+  https://docs.swift.org/swift-book (browse online)
+  https://docs.swift.org/swift-book/TheSwiftProgrammingLanguageSwift55.epub
+  https://forums.swift.org/
 
 # Table of Contents
 * [General](#General)
