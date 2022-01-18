@@ -18,7 +18,7 @@ Swift
 * [Operators](#Operators), arithmetic, comparison, ===
 * [Strings and Characters](#strings-and-characters) and Grapheme
 * [Generic Collection Types](#generic-collection-types), arrays, sets, dictionaries
-* [Control Flow](#control-flow), loops and conditional statements
+* [Control Flow](#control-flow), loops, conditionals
 * [Functions](#functions), variadic, inout
 * [Closures](#closures), parameter shorthand, trailing syntax, capturing variables, escaping, autoclosure
 * [Enumerations](#enumerations), CaseIterable, Associated values, rawValue, recursive
