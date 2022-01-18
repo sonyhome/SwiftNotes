@@ -564,32 +564,33 @@ enum E2 {
   case c
 }
 
-// Use
-e = .b
+// Use fields with . notation
+var e : E1 = .b
 switch e {
   case .a: print("a")
   case .b: print("b")
   default: print("c")
 }
 
-// Use iterable protocol
+// Attach iterable protocol for loops
 enum E1 : CaseIterable { case a, b, c}
 for x in E1.allCases { print(x) }
 
-// Associated value
+// Attach associated values with ()
 enum Barcode {
   case upc(Int, Int, Int, Int) // UPC: system-manufactuer-product-check
   case qrCode(String) // string max 2953 ISO 8859-1 characters
 }
 var productBarcode = Barcode.upc(8, 85909, 51226, 3)
 productBarcode = .qrCode("ABCDEFGHIJKLMNOP")
+// Use let to reference the values
 switch productBarcode {
 case .upc(let numberSystem, let manufacturer, let product, let check):
     print("UPC: \(numberSystem), \(manufacturer), \(product), \(check).")
 case .qrCode(let productCode):
     print("QR code: \(productCode).")
 }
-//or
+// use let on specific values or use let for all:
 switch productBarcode {
 case let .upc(numberSystem, manufacturer, product, check):
     print("UPC : \(numberSystem), \(manufacturer), \(product), \(check).")
@@ -597,30 +598,35 @@ case let .qrCode(productCode):
     print("QR code: \(productCode).")
 }
 
-// Use a raw type (string, char, number types, each enum must use a unique value)
-// Implicitly the value of a string will be the enum name, the value of a number will start
-// at 0 or whatever you set the first element of the enum. 
+// Define a raw type for the enum (string, char, number types, each enum must use a unique value)
 enum E1 : String { case a = "a", b = "BB", c = "C"}
 print(E1.b.rawValue)
 let eb = E1("BB") // set eb to E1.b
+// Implicitly the value of a string will be the enum name, the value of a number will start
+// at 0 or whatever you set the first element of the enum. 
+enum E2 : String { case a, b, c}
+print(E1.b.rawValue) // "b"
+enum E3 : Int { case a = 11, b, c}
+print(E1.b.rawValue) // "12"
 
 // Recursive enumerations: an enum that can use an enum as an element.
 enum ArithmeticExpression {
     case number(Int)
-    indirect case addition(ArithmeticExpression, ArithmeticExpression)
-    indirect case multiplication(ArithmeticExpression, ArithmeticExpression)
+    indirect case addition(ArithmeticExpression, ArithmeticExpression) // Recursive definition
+    indirect case multiplication(ArithmeticExpression, ArithmeticExpression) // Recursive definition
 }
-indirect enum ArithmeticExpression {
+// Alternative declaration
+indirect enum ArithmeticExpression { // Recursive definition
     case number(Int)
     case addition(ArithmeticExpression, ArithmeticExpression)
     case multiplication(ArithmeticExpression, ArithmeticExpression)
 }
-// Combine expressions
+// Combining expressions: A use case example for recursion
 let five = ArithmeticExpression.number(5)
 let four = ArithmeticExpression.number(4)
-let sum = ArithmeticExpression.addition(five, four)
+let sum = ArithmeticExpression.addition(five, four) // Uses recursion
 let product = ArithmeticExpression.multiplication(sum, ArithmeticExpression.number(2))
-// An evaluate the enum expression
+// We can evaluate the enum expression defined above with a recursive function
 func evaluate(_ expression: ArithmeticExpression) -> Int {
     switch expression {
     case let .number(value):
@@ -710,27 +716,28 @@ var v1 = s1(v1: 32, v2:6) // Wrapper makes v1 set to 12.
 ```
 To let users set initial values for propertyWrapper (like for v1), init() method(s) must be defined with the parameters they need.
 
-* Adding a **projectedValue** to a property wrapper
-A property wrapper can expose extra functionality on its projected value (name preceded by $). It can return a value of any type, or return a complex type or even self
+* Adding a **projectedValue** keyword to a property wrapper
+The projected value is accessed with name preceded by $. It can be any type, a complex type and even a reference to self
 ```Swift
 @propertyWrapper
 struct PW {
-  private var v : Int // varriable storing actual value
-  private(set) var projectedValue: Bool. // declare the projected value (set is private, get is public)
-  var wrappedValue: Int { // Wrapped value computed, accedded via get/set
+  private var v : Int // variable storing actual value
+  private(set) var projectedValue: Bool. // declare the projected value (its setter is private, its getter is public)
+  var wrappedValue: Int { // Wrapped value is computed via its getter/setter
     get { return v }
-    set { if ... { v = newValue; projectedValue= true } else {projectedValue = false } }
+    set { if ... { v = newValue; projectedValue= true } else {projectedValue = false } } // computes projectedValue
   }
   init() {
     self.v = 0; self.pv = false
   }
 }
 struct S {
-  @PW var n : Int // apply property wrapper on n
-  // note we can access $n in the struct too
+  @PW var n : Int // Apply property wrapper on n
+  // note we can access $n in the struct methods
 }
 var s : S = S()
 s.n = 4
+print(s.n) // print wrapped value 4 (or whatever value the override has done)
 print(s.$n) // print projectedValue value true
 ```
 
