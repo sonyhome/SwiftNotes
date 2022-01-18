@@ -1,4 +1,4 @@
-[SwiftOverview.png]
+![Logo](SwiftOverview.png)
 
 # SwiftNotes
 My notes on Swift 5.5, IDE is XCode 13 extract from [Swift Language Guide](https://docs.swift.org/swift-book/LanguageGuide/TheBasics.html) just enough for a C programmer to understand the syntax and concepts.
