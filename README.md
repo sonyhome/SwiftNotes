@@ -9,16 +9,16 @@ Swift
 * Has some weird modifiers like @notation and variables that can be keywords for some constructs, can chain calls, has implicit memory management by value/reference based on type (ref-counting, not GC).
 
 # Table of Contents
-* [#General](General)
-* [#Operators](Operators)
-* [#strings-and-characters](Strings and Characters) and Grapheme
-* [#generic-collection-types](Generic Collection Types), arrays, sets, dictionaries
-* [#control-flow](Control Flow), loops and conditional statements
-* [#functions](Functions), variadic, inout
-* [#Closures](Closures), parameter shorthand, trailing syntax, capturing variables, escaping, autoclosure
-* [#Enumerations](Enumerations), CaseIterable, Associated values, rawValue, recursive
-* [#struct-and-class](Struct and Class)
-* [#properties-of-class-struct-and-enum](Properties of Class, Struct and Enum), Property observers willSet/didSet, @propertyWrapper/wrappedValue, projectedValue
+* [General](#General)
+* [Operators](#Operators)
+* [Strings and Characters](#strings-and-characters) and Grapheme
+* [Generic Collection Types](#generic-collection-types), arrays, sets, dictionaries
+* [Control Flow](#control-flow), loops and conditional statements
+* [Functions](#functions), variadic, inout
+* [Closures](#closures), parameter shorthand, trailing syntax, capturing variables, escaping, autoclosure
+* [Enumerations](#enumerations), CaseIterable, Associated values, rawValue, recursive
+* [Struct and Class](#struct-and-class)
+* [Properties of Class, Struct and Enum](#properties-of-class-struct-and-enum), Property observers willSet/didSet, @propertyWrapper/wrappedValue, projectedValue
 
 
 # General
