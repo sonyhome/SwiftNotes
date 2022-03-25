@@ -846,7 +846,7 @@ Running work concurrently, and waiting for all of them at once:
   show(all)
 ```
 
-Unstructured concurrency
+## Unstructured concurrency
 
 Unstructured tasks don't have a parent task and are spawned with the **Task.init(priority:operation:)** initializer, which returns a task handle to interact with the task.
 To create one not part of the current actor call the **Task.detached(priority:operation:)** initializer.
@@ -855,7 +855,7 @@ let handle = Task { ...; return x }
 le result = await handle.value
 ```
 
-Task group
+## Task group
 
 **async let** creates a child task. Instead yo can create a group and add children to it, to control priority and cancellations.
 ```swift
@@ -871,7 +871,7 @@ await withTaskGroup(of: Data.self) {
 A cancelled task can throw an error, return nil or [], or partial results.
 Use **Task.checkCancellation()** (it throws) or check **Task.isCancelled** to do manual cleanup. Propagate a cancelation with **Task.cancel()**.
 
-Actors
+## Actors
 
 Actors are reference types like classes but only allow one task to access their mutable state at one time (thread safe).
 ```Swift
@@ -883,10 +883,19 @@ actor A {
   update(with v: Int) {
     values.append(v)
     if v > max { max = v } // Both operations are atomic because no await was inserted
+  }
+  nonisolated func p() { print("Name is \(name)") } // Function doesn't need async when called
+  nonisolated var desc: String { "Name is \(name)" } // Same for computed property
 }
 let a = A("foo", 1)
 print(await a.max) // await is needed because another task could be accessing the actor
 ```
+Note Actors can't inherit, but can be extended with **extension { }** and follow protocols.
+```Swift
+extension A { func bar() {...} }
+extension A : someProtocol { func someProtocolMethod() {...} }
+```
+The **MainActor** property applied to a variable of function will force a compiler error if it is not used on the main thread, for example within **DispatchQueue.main.async {...} **.
 
 Delayed execution
 
