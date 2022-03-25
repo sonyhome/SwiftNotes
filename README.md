@@ -762,3 +762,178 @@ struct SettingsViewModel {
     var numberOfSearchResultsPerPage
 }
 ```
+
+# Weak references, Weak self/Unowned self
+
+Swift uses Automatic Reference Counting (ARC) to manage and release memory of reference types (like classes).
+Weak and Unowned allow ARC to release memory to avoid leaks because they do not increase the refcount.
+
+A weak reference is used when it is OK for the value to be set to nul assynchronously.
+A weak referene is always optional so it can be set to nil when freed.
+
+It is used to break a reference loop when 2 objects cross reference.
+
+Example:
+```Swift
+class A { let name: String; weak var b: B?; init(name: String) }
+class B { let name: String; var a: A?; init(name: String) }
+var va: A? = A(name: "foo")
+var vb: B? = B(name: "bar")
+vb.a = va; va.b = vb
+/// The following frees va and vb:
+vb = nil; va = nil
+```
+Freeing happens because the weak reference allows vb to be freed because va.b doesn't keep a strong link and its reference will just be set to nil when vb frees up. In turn since vb is freed, its strong reference vb.a doesn't matter and va refcount reaches 0.
+
+Weak self-reference in a closure allows the object to be released while the closure is running. For example:
+```Swift
+func closure() -> Nil {
+  [weak self] in // specify multiple capture variables with brackets
+  self?.a.append(entry)
+}
+```
+
+Unowned references are not optional and not tracked by ARC. You must know the reference will never be nil once initialized.
+
+
+# Concurrency, Async- Await (Swift 5.5)
+
+```Swift
+  func foo() async throws -> [Int] {...} 
+```
+Performs an asynchronous (async) task that can fail (throws), and returns an array on completion or an error.
+
+This replaces the need to use a closure like this one:
+```Swift
+  func foo(completion: (Result<[Int], Error>) -> Void ) {...; completion(result, nil)}
+```
+The code is harder to read and manage, with the completion hdling both optional results and error handling. It can also become a nested code clutter.
+
+You can call an async method and await for it:
+```Swift
+  do { let array = try await foo() } catch { print("\(error)") } 
+```
+This code is valid only in a call environment that supports concurrency, so use Task.init to create a new concurrent task. Alternatively the **static main()** method of a struct/class/enum that's marked as @main.
+```swift
+class C: ObservableObject {
+  @Published var pv: [stuff] = []
+  func fetch() {
+    Task.init {
+      do {
+        let array = try await foo()
+        pv = stuff()
+      } catch { print("\(error)") }
+    }
+  }
+```
+
+Note: You can right click on a function to refactor it into an Async function
+Note:  you can only reference and update self on a reference type like a class, not a struct.
+Note: use sleep() or Task.sleep(nanoseconds:...) to test your code
+
+Waiting for each element in a sequence to render before using it:
+```Swift
+  for try await l in FileHandle.stadardInput.bytes.lines { print(line) }
+```
+
+Running work concurrently, and waiting for all of them at once:
+```swift
+  // Both run concurrently
+  async let a = get(named: name[0])
+  async let b = get(named: name[1])
+  // Rendez-vous point waits for completion
+  let all = await [a, b]
+  show(all)
+```
+
+Unstructured concurrency
+
+Unstructured tasks don't have a parent task and are spawned with the **Task.init(priority:operation:)** initializer, which returns a task handle to interact with the task.
+To create one not part of the current actor call the **Task.detached(priority:operation:)** initializer.
+```swift
+let handle = Task { ...; return x }
+le result = await handle.value
+```
+
+Task group
+
+**async let** creates a child task. Instead yo can create a group and add children to it, to control priority and cancellations.
+```swift
+await withTaskGroup(of: Data.self) {
+  taskGroup in:
+  let list = await foo()
+  for x in list {
+    taskGroup.addTask { await bar(named: x) }
+  }
+}
+```
+
+A cancelled task can throw an error, return nil or [], or partial results.
+Use **Task.checkCancellation()** (it throws) or check **Task.isCancelled** to do manual cleanup. Propagate a cancelation with **Task.cancel()**.
+
+Actors
+
+Actors are reference types like classes but only allow one task to access their mutable state at one time (thread safe).
+```Swift
+actor A {
+  let name: String
+  var values: [Int]
+  private(set) var max: Int
+  init(name: String, value: Int) {...}
+  update(with v: Int) {
+    values.append(v)
+    if v > max { max = v } // Both operations are atomic because no await was inserted
+}
+let a = A("foo", 1)
+print(await a.max) // await is needed because another task could be accessing the actor
+```
+
+Delayed execution
+
+```Swift
+asyncAfter(deadline:execute:)
+asyncAfter(wallDeadline:execute:)
+```
+
+# DispatchQueue / DispatchGroup / DispatchWorkItem
+
+DispatchQueue
+A FIFO to submit tasks as block objects. The DispatchQueue executes the tasks serially or concurrently
+on a pool of threads managed by the OS's GCD (Grand Central Dispatch). Synchronous execution waits for a task to finish.
+```Swift
+let sq = DispatchQueue(label: "my serial queue")
+let cq = DispatchQueue(label: "runs in parallel", attirbute: .concurrent)
+sq.async { foo(1) }
+sq.async { foo(2) }
+```
+Use a barrier to block read access to an object when it is being updated. It is implemented as a blocking task that waits for previous tasks to finish, and prevent other tasks from getting scheduled until the code block is done.
+```Swift
+func foo(stuff: String) {
+  cq.sync(flag: .barrier) { data.append(stuff) }
+}
+```
+The **main dispatch queue** is a serial queue running on the main thread, used to update the UI. You can run a serial thread on the main thread using main.async to update the UI for example.
+```DispatchQueue.main.async {updateUI(data)}``` 
+However, avoid running blocking tasks in concurrent queues.
+Use the global concurrent queue:
+```DispatchQueue.global().async { foo() }```
+
+DispatchGroup
+Aggregates tasks to run assynchronously. When they finish the group runs the completion handler.
+
+The app's main queue cannot run a synchronous task (deadlocks)
+
+```Swift
+concurrentPerform(iterations: Int, execute: (Int) -> Void)
+async(group:execute:)
+schedule(after:tolerance:options:)
+schedule(after:interval:tolerance:options:)
+now // current time
+perform() // runs synchronously on current thread
+notify(queue:execute:) // run a work item after the current work item
+wait() // wait synchronously for work to finish
+wait(timeout:) // that or continue if timeout reached
+cancel()
+isCancelled
+```
+
