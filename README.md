@@ -946,3 +946,19 @@ cancel()
 isCancelled
 ```
 
+# class Operation
+A single shot abstract class to perform a task (a variable can only perform a task once). The task is typically executed by placing the operation in an **OperationQueue** that runs the task synchronously or assynchronously via the Dispatch framework (see GDC), by calling the **start()** method.
+You can add execution dependencies to other operations with **addDependency()**. This ensures completion of but does not verify the success of these operations. Once all these operations are finished, it enters isReady state and can be scheduled to run.
+Some properties are key-value coding (KVC) and key-value observing (KVO) compliant, and can be observed via isX() methods. These may run on any thread and can't be used from UI code.
+[Key value Coding guide](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/KeyValueCoding/index.html#//apple_ref/doc/uid/10000107i)
+[Key-value obsrving](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/KeyValueObserving/KeyValueObserving.html#//apple_ref/doc/uid/10000177i)
+Any code and data of an Operation must be thread safe with synchronizations
+[Thread programming](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Multithreading/Introduction/Introduction.html#//apple_ref/doc/uid/10000057i)
+
+An operation queue ignores the isAsynchronous property and always calls the start() method from a separate thread, so reason to make the Operation asynchronous.
+
+Instantiate the class and override **main()** to handle the task to run. You may add get/set to some data.
+If the operation is asynchronous, override **start(), isAsynchronous, isExecuting, isFinished**.
+Start should be fully overridden (no call to super), and at least set isExecuting, and spawn main() on a thread or run an asynchronous function.
+
+
